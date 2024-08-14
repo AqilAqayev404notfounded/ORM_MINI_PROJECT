@@ -7,7 +7,6 @@ namespace ORM_MINI_PROJECT.DTOs
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public Models.User User { get; set; }
         public decimal TotalAmount { get; set; }
         public OrderStatus Status { get; set; }
     }

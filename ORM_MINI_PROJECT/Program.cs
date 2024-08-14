@@ -5,6 +5,7 @@ using ORM_MINI_PROJECT.DTOs;
 using ORM_MINI_PROJECT.Excaption;
 using ORM_MINI_PROJECT.Models;
 using ORM_MINI_PROJECT.Services.Implementations;
+using System.Net.NetworkInformation;
 
 namespace ORM_MINI_PROJECT
 {
@@ -19,6 +20,8 @@ namespace ORM_MINI_PROJECT
             UserService userService = new UserService();
             ProductService productService = new ProductService();
             AppDbContext appContext = new AppDbContext();
+            OrderService orderService = new OrderService();
+            
             while (true)
             {
 
@@ -117,7 +120,6 @@ namespace ORM_MINI_PROJECT
                             Console.WriteLine("4.Get Product By Id");
                             Console.WriteLine("5.Delete Product");
                             Console.WriteLine("6.Search Products By Name");
-                            Console.WriteLine("7.Show Product Service Menu");
                             Console.WriteLine("0.Exit Porduct Service");
 
                             while (true)
@@ -128,12 +130,16 @@ namespace ORM_MINI_PROJECT
                                     case "1":
                                         await Console.Out.WriteLineAsync("please enter product name");
                                         string productName = Console.ReadLine();
+
                                         await Console.Out.WriteLineAsync("please enter product price");
                                         decimal productPrice = decimal.Parse(Console.ReadLine());
+
                                         await Console.Out.WriteLineAsync("please enter product stock");
                                         int stock = int.Parse(Console.ReadLine());
+
                                         await Console.Out.WriteLineAsync("please enter product Description");
                                         string DescriptionProduct = Console.ReadLine();
+
                                         ProductDto ProductDto = new ProductDto()
                                         {
                                             Name = productName,
@@ -142,7 +148,8 @@ namespace ORM_MINI_PROJECT
                                             Description = DescriptionProduct
 
                                         };
-                                       await  productService.CreateProductAsync(ProductDto);
+
+                                        await productService.CreateProductAsync(ProductDto);
                                         await Console.Out.WriteLineAsync("secsesfuly");
 
                                         goto ProductMenu;
@@ -175,7 +182,7 @@ namespace ORM_MINI_PROJECT
                                             Price = productPriceUpdate,
                                             Stock = stockUpdate,
                                             Description = DescriptionProductUpdate
-                                            
+
 
                                         };
                                         await productService.UpdateProductAsync(ProductDtoUpdate);
@@ -191,8 +198,8 @@ namespace ORM_MINI_PROJECT
                                         goto ProductMenu;
                                     case "5":
                                         await Console.Out.WriteLineAsync("please enter product id");
-                                        int deleteProductId = int.Parse(Console.ReadLine()); 
-                                        
+                                        int deleteProductId = int.Parse(Console.ReadLine());
+
                                         var usersDelete = await appContext.Product.ToListAsync();
                                         foreach (var item in usersDelete)
                                         {
@@ -212,7 +219,7 @@ namespace ORM_MINI_PROJECT
                                         var usersGetAllId = await appContext.Product.ToListAsync();
                                         foreach (var item in usersGetAllId)
                                         {
-                                            if (getaLLProductId!=item.Id)
+                                            if (getaLLProductId != item.Id)
                                             {
                                                 await Console.Out.WriteLineAsync("Id is wrong");
                                                 goto ProductMenu;
@@ -224,26 +231,70 @@ namespace ORM_MINI_PROJECT
                                     case "6":
                                         await Console.Out.WriteLineAsync("please enter product name");
                                         string productFilter = Console.ReadLine();
-                                        List<ProductDto> products  = await productService.SearchByName(productFilter);
+                                        List<ProductDto> products = await productService.SearchByName(productFilter);
                                         if (products.Any())
                                         {
-                                            foreach (var product in products)
+                                            foreach (var item in products)
                                             {
-                                                Console.WriteLine($"Name: {product.Name}, Price: {product.Price}, Description: {product.Description}");
+                                                await Console.Out.WriteLineAsync($"id-{item.Id}, name-{item.Name},Price -{item.Price},Description -{item.Description} ");
                                             }
                                         }
                                         else
                                         {
                                             Console.WriteLine("No products found with the given name.");
                                         }
-                                           goto ProductMenu;
+                                        goto ProductMenu;
+                                    case "0":
+                                        goto ServicesMenu;
+                                    default:
+                                        await Console.Out.WriteLineAsync("wrong select");
+                                        goto ProductMenu;
 
 
+                                }
 
 
+                            }
 
+                        case "2":
+                        OrderMenu:
+                            Console.WriteLine("-----------------------------------------------------------------");
+                            Console.WriteLine("Welcome to the Order Service");
+                            Console.WriteLine("1.Create Order");
+                            Console.WriteLine("2.Cancel Order");
+                            Console.WriteLine("3.Complete Order");
+                            Console.WriteLine("4.Get Orders");
+                            Console.WriteLine("5.Add OrderDetail");
+                            Console.WriteLine("6.Show Order Service menu");
+                            Console.WriteLine("0.Exit Order Service");
+                            string selectOrder = Console.ReadLine();
 
+                            while (true)
+                            {
+                                switch (selectOrder)
+                                {
 
+                                    case "1":
+                                        var usersGetAll = await appContext.Users.ToListAsync();
+                                        foreach (var item in usersGetAll)
+                                        {
+                                            await Console.Out.WriteLineAsync($"id-{item.Id}, name-{item.Fulname}");
+                                        }
+                                        int selectUserId = int.Parse(Console.ReadLine());
+
+                                        OrderDto orderDto = new OrderDto() { UserId=selectUserId,Status = Enums.OrderStatus.pending
+
+                                        };
+
+                                        
+
+                                        await orderService.CreateOrderAsync(orderDto);
+                                        Console.WriteLine("okey");
+
+                                        
+                                        
+                                        
+                                        goto OrderMenu;
 
 
 
@@ -254,11 +305,8 @@ namespace ORM_MINI_PROJECT
 
 
                                 }
-
-
                             }
 
-                            break;
 
 
 

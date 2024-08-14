@@ -18,6 +18,7 @@ public class OrderService : IOrderService
 
     public async Task<List<OrderDto>> GetAllOrdersAsync()
     {
+
         var orders = await _orderRepository.GetAllAsync();
         return orders.Select(o => new OrderDto
         {
@@ -44,16 +45,24 @@ public class OrderService : IOrderService
 
     public async Task CreateOrderAsync(OrderDto newOrder)
     {
+
+        var isExist=await _orderRepository.IsExistAsync(x=>x.UserId==newOrder.UserId && x.Status==Enums.OrderStatus.pending);
+
+        if (isExist)
+            throw new Exception("Order is already exist exception");
+
         var order = new Order
         {
             UserId = newOrder.UserId,
-            TotalAmount = newOrder.TotalAmount,
-            Status = newOrder.Status,
+            Status = Enums.OrderStatus.pending,
             OrderDate = DateTime.UtcNow
         };
 
         await _orderRepository.CreateAsync(order);
         await _orderRepository.SaveChangesAsync();
+
+
+        await Console.Out.WriteLineAsync($"Order successfully created this your order id {order.Id}");
     }
 
     public async Task UpdateOrderAsync(OrderDto updatedOrder)

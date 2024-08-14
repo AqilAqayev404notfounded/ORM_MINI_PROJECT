@@ -10,10 +10,14 @@ namespace ORM_MINI_PROJECT.Services.Implementations
     public class OrderDetailService : IOrderDetailService
     {
         private readonly IOrderDetailRepository _orderDetailRepository;
+        private readonly IOrderRepository _orderRepository;
+        private readonly IProductRepository _productRepository;
 
-        public OrderDetailService( )
+        public OrderDetailService()
         {
             _orderDetailRepository = new OrderDetailRepository();
+            _orderRepository = new OrderRepository();
+            _productRepository = new ProductRepository();
         }
 
         public async Task<List<OrderDetailDto>> GetAllOrderDetailsAsync()
@@ -46,13 +50,31 @@ namespace ORM_MINI_PROJECT.Services.Implementations
 
         public async Task CreateOrderDetailAsync(OrderDetailDto newOrderDetail)
         {
+            var order = await _orderRepository.GetSingleAsync(x => x.Id == newOrderDetail.OrderID, "OrderDetails.Product");
+            if (order is null)
+                throw new NotFoundException("Order is not found");
+
+            var product = await _productRepository.GetSingleAsync(x => x.Id == newOrderDetail.ProductID);
+
+            if (product is null)
+                throw new NotFoundException("Product is not found");
+
+
             var orderDetail = new OrderDetail
             {
                 OrderID = newOrderDetail.OrderID,
                 ProductID = newOrderDetail.ProductID,
                 Quantity = newOrderDetail.Quantity,
-                PricePerItem = newOrderDetail.PricePerItem
+                PricePerItem = product.Price
             };
+
+
+            order.OrderDetails.Add(orderDetail);
+
+            order.TotalAmount = 0;
+
+
+            order.OrderDetails.ForEach(x => order.TotalAmount += x.Quantity * x.Product.Price);
 
             await _orderDetailRepository.CreateAsync(orderDetail);
             await _orderDetailRepository.SaveChangesAsync();
