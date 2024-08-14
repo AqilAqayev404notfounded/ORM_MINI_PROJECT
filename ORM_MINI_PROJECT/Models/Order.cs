@@ -16,6 +16,5 @@ namespace ORM_MINI_PROJECT.Models
         public OrderStatus Status { get; set; }
         public DateTime OrderDate { get; set; }
 
-        public List<Order> Orders {  get; set; }
     }
 }

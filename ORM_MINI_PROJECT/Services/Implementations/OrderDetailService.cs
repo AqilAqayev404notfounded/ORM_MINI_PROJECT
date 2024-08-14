@@ -1,6 +1,7 @@
 ﻿using ORM_MINI_PROJECT.DTOs;
 using ORM_MINI_PROJECT.Excaption;
 using ORM_MINI_PROJECT.Models;
+using ORM_MINI_PROJECT.Repositories.Implementations;
 using ORM_MINI_PROJECT.Repositories.Interfaces;
 using ORM_MINI_PROJECT.Services.Interfances;
 
@@ -10,9 +11,9 @@ namespace ORM_MINI_PROJECT.Services.Implementations
     {
         private readonly IOrderDetailRepository _orderDetailRepository;
 
-        public OrderDetailService(IOrderDetailRepository orderDetailRepository)
+        public OrderDetailService( )
         {
-            _orderDetailRepository = orderDetailRepository;
+            _orderDetailRepository = new OrderDetailRepository();
         }
 
         public async Task<List<OrderDetailDto>> GetAllOrderDetailsAsync()
@@ -20,7 +21,7 @@ namespace ORM_MINI_PROJECT.Services.Implementations
             var orderDetails = await _orderDetailRepository.GetAllAsync();
             return orderDetails.Select(od => new OrderDetailDto
             {
-                Id = od.id,
+                Id = od.Id,
                 OrderID = od.OrderID,
                 ProductID = od.ProductID,
                 Quantity = od.Quantity,
@@ -30,12 +31,12 @@ namespace ORM_MINI_PROJECT.Services.Implementations
 
         public async Task<OrderDetailDto> GetOrderDetailByIdAsync(int id)
         {
-            var orderDetail = await _orderDetailRepository.GetSingleAsync(od => od.id == id);
+            var orderDetail = await _orderDetailRepository.GetSingleAsync(od => od.Id == id);
             if (orderDetail == null) throw new NotFoundException("Order detail not found");
 
             return new OrderDetailDto
             {
-                Id = orderDetail.id,
+                Id = orderDetail.Id,
                 OrderID = orderDetail.OrderID,
                 ProductID = orderDetail.ProductID,
                 Quantity = orderDetail.Quantity,
@@ -57,15 +58,25 @@ namespace ORM_MINI_PROJECT.Services.Implementations
             await _orderDetailRepository.SaveChangesAsync();
         }
 
-        public Task UpdateOrderDetailAsync(OrderDetailDto updatedOrderDetail)
+        public async Task UpdateOrderDetailAsync(OrderDetailDto updatedOrderDetail)
         {
-            throw new NotImplementedException();
+            var orderDetail = await _orderDetailRepository.GetSingleAsync(od => od.Id == updatedOrderDetail.Id);
+            if (orderDetail == null) throw new NotFoundException("Order detail not found");
+
+            orderDetail.Quantity = updatedOrderDetail.Quantity;
+            orderDetail.PricePerItem = updatedOrderDetail.PricePerItem;
+
+            _orderDetailRepository.Update(orderDetail);
+            await _orderDetailRepository.SaveChangesAsync();
         }
 
-        public Task DeleteOrderDetailAsync(int id)
+        public async Task DeleteOrderDetailAsync(int id)
         {
-            throw new NotImplementedException();
-        }
+            var orderDetail = await _orderDetailRepository.GetSingleAsync(od => od.Id == id);
+            if (orderDetail == null) throw new NotFoundException("Order detail not found");
 
-        public async Task
+            _orderDetailRepository.Delete(orderDetail);
+            await _orderDetailRepository.SaveChangesAsync();
+        }
     }
+}

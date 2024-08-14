@@ -1,4 +1,5 @@
 ﻿using ORM_MINI_PROJECT.Models;
+using ORM_MINI_PROJECT.Repositories.Implementations.Generic;
 using ORM_MINI_PROJECT.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;

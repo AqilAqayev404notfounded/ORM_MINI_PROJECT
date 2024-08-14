@@ -18,7 +18,6 @@ namespace ORM_MINI_PROJECT.Models
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
 
-        public List<Product> Products { get; set; }
 
     }
 }

@@ -19,7 +19,6 @@ public class OrderDetail : BaseEntity
 
     public decimal PricePerItem { get; set; }
 
-    public List<OrderDetail> OrderDetails {  get; set; }
 
 
 }

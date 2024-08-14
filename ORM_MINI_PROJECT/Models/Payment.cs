@@ -14,7 +14,6 @@ namespace ORM_MINI_PROJECT.Models
         public decimal Amount { get; set; }
         public DateTime PaymentDate { get; set; }
 
-        List<Payment> Payments { get; set;} 
 
     }
 }

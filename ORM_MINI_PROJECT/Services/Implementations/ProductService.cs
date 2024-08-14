@@ -1,6 +1,7 @@
 ﻿using ORM_MINI_PROJECT.DTOs;
 using ORM_MINI_PROJECT.Excaption;
 using ORM_MINI_PROJECT.Models;
+using ORM_MINI_PROJECT.Repositories.Implementations;
 using ORM_MINI_PROJECT.Repositories.Interfaces;
 using ORM_MINI_PROJECT.Services.Interfances;
 
@@ -10,17 +11,29 @@ namespace ORM_MINI_PROJECT.Services.Implementations
     {
         private readonly IProductRepository _productRepository;
 
-        public ProductService(IProductRepository productRepository)
+        public ProductService()
         {
-            _productRepository = productRepository;
+            _productRepository = new ProductRepository();
         }
+        public async Task<List<ProductDto>> SearchByName(string name)
+        {
+            var products=await _productRepository.GetFilterAsync(x=>x.Name.Contains(name));
+            return products.Select(p => new ProductDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Price = p.Price,
+                Description = p.Description,
+                Stock = p.Stock
+            }).ToList();
 
+            }
         public async Task<List<ProductDto>> GetAllProductsAsync()
         {
             var products = await _productRepository.GetAllAsync();
             return products.Select(p => new ProductDto
             {
-                Id = p.id,
+                Id = p.Id,
                 Name = p.Name,
                 Price = p.Price,
                 Description = p.Description,
@@ -30,12 +43,12 @@ namespace ORM_MINI_PROJECT.Services.Implementations
 
         public async Task<ProductDto> GetProductByIdAsync(int id)
         {
-            var product = await _productRepository.GetSingleAsync(p => p.id == id);
+            var product = await _productRepository.GetSingleAsync(p => p.Id == id);
             if (product == null) throw new NotFoundException("Product not found");
 
             return new ProductDto
             {
-                Id = product.id,
+                Id = product.Id,
                 Name = product.Name,
                 Price = product.Price,
                 Description = product.Description,
@@ -61,7 +74,7 @@ namespace ORM_MINI_PROJECT.Services.Implementations
 
         public async Task UpdateProductAsync(ProductDto updatedProduct)
         {
-            var product = await _productRepository.GetSingleAsync(p => p.id == updatedProduct.Id);
+            var product = await _productRepository.GetSingleAsync(p => p.Id == updatedProduct.Id);
             if (product == null) throw new NotFoundException("Product not found");
 
             product.Name = updatedProduct.Name;
@@ -76,11 +89,13 @@ namespace ORM_MINI_PROJECT.Services.Implementations
 
         public async Task DeleteProductAsync(int id)
         {
-            var product = await _productRepository.GetSingleAsync(p => p.id == id);
+            var product = await _productRepository.GetSingleAsync(p => p.Id == id);
             if (product == null) throw new NotFoundException("Product not found");
 
             _productRepository.Delete(product);
             await _productRepository.SaveChangesAsync();
         }
+
+
     }
 }

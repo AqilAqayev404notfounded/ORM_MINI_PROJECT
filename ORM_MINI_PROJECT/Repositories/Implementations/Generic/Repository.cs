@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ORM_MINI_PROJECT.Context;
 using ORM_MINI_PROJECT.Models.Common;
-using ORM_MINI_PROJECT.Repositories.Interfaces;
+using ORM_MINI_PROJECT.Repositories.Interfaces.Generic;
 using System.Linq.Expressions;
 
-namespace ORM_MINI_PROJECT.Repositories.Implementations
+namespace ORM_MINI_PROJECT.Repositories.Implementations.Generic
 {
 
-    public class Repository<T> : IRepositories<T> where T : BaseEntity
+    public class Repository<T> : IRepository<T> where T : BaseEntity
     {
 
         private readonly AppDbContext _appDbContext;
@@ -30,18 +30,34 @@ namespace ORM_MINI_PROJECT.Repositories.Implementations
         public async Task<List<T>> GetAllAsync(params string[] includes)
         {
             var query = _appDbContext.Set<T>().AsQueryable();
+
             foreach (var include in includes)
             {
-                query = query.Include(include);  
+                query = query.Include(include);
             }
 
 
-            var result = await query.ToListAsync(); 
+            var result = await query.ToListAsync();
 
 
             return result;
         }
 
+        public async Task<List<T>> GetFilterAsync(Expression<Func<T, bool>> expression, params string[] includes)
+        {
+            var query = _appDbContext.Set<T>().Where(expression);
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+
+            var result = await query.ToListAsync();
+
+
+            return result;
+        }
 
         public async Task<T?> GetSingleAsync(Expression<Func<T, bool>> predicate, params string[] includes)
         {

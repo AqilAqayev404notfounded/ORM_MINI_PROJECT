@@ -1,6 +1,7 @@
 ﻿using ORM_MINI_PROJECT.DTOs;
 using ORM_MINI_PROJECT.Excaption;
 using ORM_MINI_PROJECT.Models;
+using ORM_MINI_PROJECT.Repositories.Implementations;
 using ORM_MINI_PROJECT.Repositories.Interfaces;
 using ORM_MINI_PROJECT.Services.Interfances;
 
@@ -10,9 +11,9 @@ public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepository;
 
-    public OrderService(IOrderRepository orderRepository)
+    public OrderService()
     {
-        _orderRepository = orderRepository;
+        _orderRepository = new OrderRepository();
     }
 
     public async Task<List<OrderDto>> GetAllOrdersAsync()
@@ -20,7 +21,7 @@ public class OrderService : IOrderService
         var orders = await _orderRepository.GetAllAsync();
         return orders.Select(o => new OrderDto
         {
-            Id = o.id,
+            Id = o.Id,
             UserId = o.UserId,
             TotalAmount = o.TotalAmount,
             Status = o.Status,
@@ -29,12 +30,12 @@ public class OrderService : IOrderService
 
     public async Task<OrderDto> GetOrderByIdAsync(int id)
     {
-        var order = await _orderRepository.GetSingleAsync(o => o.id == id);
+        var order = await _orderRepository.GetSingleAsync(o => o.Id == id);
         if (order == null) throw new NotFoundException("Order not found");
 
         return new OrderDto
         {
-            Id = order.id,
+            Id = order.Id,
             UserId = order.UserId,
             TotalAmount = order.TotalAmount,
             Status = order.Status,
@@ -57,7 +58,7 @@ public class OrderService : IOrderService
 
     public async Task UpdateOrderAsync(OrderDto updatedOrder)
     {
-        var order = await _orderRepository.GetSingleAsync(o => o.id == updatedOrder.Id);
+        var order = await _orderRepository.GetSingleAsync(o => o.Id == updatedOrder.Id);
         if (order == null) throw new NotFoundException("Order not found");
 
         order.TotalAmount = updatedOrder.TotalAmount;
@@ -70,7 +71,7 @@ public class OrderService : IOrderService
 
     public async Task DeleteOrderAsync(int id)
     {
-        var order = await _orderRepository.GetSingleAsync(o => o.id == id);
+        var order = await _orderRepository.GetSingleAsync(o => o.Id == id);
         if (order == null) throw new NotFoundException("Order not found");
 
         _orderRepository.Delete(order);
