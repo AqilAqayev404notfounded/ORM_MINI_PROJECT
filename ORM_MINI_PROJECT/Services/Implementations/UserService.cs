@@ -1,4 +1,5 @@
-﻿using ORM_MINI_PROJECT.DTOs;
+﻿using ClosedXML.Excel;
+using ORM_MINI_PROJECT.DTOs;
 using ORM_MINI_PROJECT.Excaption;
 using ORM_MINI_PROJECT.Models;
 using ORM_MINI_PROJECT.Repositories.Implementations;
@@ -120,10 +121,36 @@ public class UserService : IUserService
 
         return userDto;
 
+
+    }
+    //public void ExportUserOrdersToExcel(int userId)
+    //{
+    //    var orders = GetUserOrders(userId);
+
+    //    var workbook = new XLWorkbook();
+    //    var worksheet = workbook.Worksheets.Add("User Orders");
+
+    //    worksheet.Cell(1, 1).Value = "Order ID";
+    //    worksheet.Cell(1, 2).Value = "Order Date";
+    //    worksheet.Cell(1, 3).Value = "Total Amount";
+    //    worksheet.Cell(1, 4).Value = "Status";
+
+    //    int row = 2;
+    //    foreach (var order in orders)
+    //    {
+    //        worksheet.Cell(row, 1).Value = order.Id;
+    //        worksheet.Cell(row, 2).Value = order.OrderDate;
+    //        worksheet.Cell(row, 3).Value = order.TotalAmount;
+    //        worksheet.Cell(row, 4).Value = order.Status;
+    //        row++;
+    //    }
+
+    //    workbook.SaveAs($"User_{userId}_Orders.xlsx");
+    //}
         //foreach (var item in await GetAllUsersAsync())
         //{
 
-        
+
         //    if(email == item.Email&& pasworrd == item.Password)
         //    {
         //        i = true; break;
@@ -131,5 +158,4 @@ public class UserService : IUserService
 
         //}
 
-    }
 }

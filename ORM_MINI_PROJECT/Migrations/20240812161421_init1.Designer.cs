@@ -65,14 +65,14 @@ namespace ORM_MINI_PROJECT.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("OrderID")
+                    b.Property<int>("OrderId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("PricePerItem")
                         .HasMaxLength(100)
                         .HasColumnType("decimal(7,2)");
 
-                    b.Property<int>("ProductID")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
@@ -81,9 +81,9 @@ namespace ORM_MINI_PROJECT.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderID");
+                    b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductID");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("OrderDetail");
 
@@ -217,13 +217,13 @@ namespace ORM_MINI_PROJECT.Migrations
                 {
                     b.HasOne("ORM_MINI_PROJECT.Models.Order", "Order")
                         .WithMany()
-                        .HasForeignKey("OrderID")
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ORM_MINI_PROJECT.Models.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductID")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

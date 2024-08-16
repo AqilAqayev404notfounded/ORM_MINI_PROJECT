@@ -26,8 +26,8 @@ namespace ORM_MINI_PROJECT.Services.Implementations
             return orderDetails.Select(od => new OrderDetailDto
             {
                 Id = od.Id,
-                OrderID = od.OrderID,
-                ProductID = od.ProductID,
+                OrderID = od.OrderId,
+                ProductID = od.ProductId,
                 Quantity = od.Quantity,
                 PricePerItem = od.PricePerItem
             }).ToList();
@@ -41,8 +41,8 @@ namespace ORM_MINI_PROJECT.Services.Implementations
             return new OrderDetailDto
             {
                 Id = orderDetail.Id,
-                OrderID = orderDetail.OrderID,
-                ProductID = orderDetail.ProductID,
+                OrderID = orderDetail.OrderId,
+                ProductID = orderDetail.ProductId,
                 Quantity = orderDetail.Quantity,
                 PricePerItem = orderDetail.PricePerItem
             };
@@ -50,9 +50,52 @@ namespace ORM_MINI_PROJECT.Services.Implementations
 
         public async Task CreateOrderDetailAsync(OrderDetailDto newOrderDetail)
         {
+            //var order = await _orderRepository.GetSingleAsync(x => x.Id == newOrderDetail.OrderID, "OrderDetails.Product");
+
+            //if (order is null)
+            //    throw new NotFoundException("Order is not found");
+
+            //var product = await _productRepository.GetSingleAsync(x => x.Id == newOrderDetail.ProductID);
+
+            //if (product is null)
+            //    throw new NotFoundException("Product is not found");
+
+
+            //var orderDetail = new OrderDetail
+            //{
+            //    OrderId = newOrderDetail.OrderID,
+            //    ProductId = newOrderDetail.ProductID,
+            //    Quantity = newOrderDetail.Quantity,
+            //    PricePerItem = product.Price
+            //};
+
+
+            //order.TotalAmount = 0;
+            //order.OrderDetails.ForEach(x => order.TotalAmount += x.Quantity * x.Product.Price);
+            //order.TotalAmount += orderDetail.Quantity * product.Price;
+            //order.OrderDetails.Add(orderDetail);
+
+
+
+            // _orderRepository.Update(order);
+
+            //await _orderDetailRepository.CreateAsync(orderDetail);
+            //await _orderDetailRepository.SaveChangesAsync();
+
+
+
+
+
+
+
             var order = await _orderRepository.GetSingleAsync(x => x.Id == newOrderDetail.OrderID, "OrderDetails.Product");
+         
+         
+
+
             if (order is null)
                 throw new NotFoundException("Order is not found");
+
 
             var product = await _productRepository.GetSingleAsync(x => x.Id == newOrderDetail.ProductID);
 
@@ -60,21 +103,20 @@ namespace ORM_MINI_PROJECT.Services.Implementations
                 throw new NotFoundException("Product is not found");
 
 
-            var orderDetail = new OrderDetail
+            order.TotalAmount += product.Price * newOrderDetail.Quantity;
+
+            OrderDetail orderDetail = new()
             {
-                OrderID = newOrderDetail.OrderID,
-                ProductID = newOrderDetail.ProductID,
+                OrderId = order.Id,
+                PricePerItem = product.Price,
+                ProductId = product.Id,
                 Quantity = newOrderDetail.Quantity,
-                PricePerItem = product.Price
+
             };
 
 
-            order.OrderDetails.Add(orderDetail);
-
-            order.TotalAmount = 0;
-
-
-            order.OrderDetails.ForEach(x => order.TotalAmount += x.Quantity * x.Product.Price);
+            _orderRepository.Update(order);
+            await _orderRepository.SaveChangesAsync();
 
             await _orderDetailRepository.CreateAsync(orderDetail);
             await _orderDetailRepository.SaveChangesAsync();

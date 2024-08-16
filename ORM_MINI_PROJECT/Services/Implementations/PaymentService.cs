@@ -10,9 +10,11 @@ namespace ORM_MINI_PROJECT.Services.Implementations
     public class PaymentService : IPaymentService
     {
         private readonly IPaymentRepository _paymentRepository;
+        private readonly IOrderRepository _orderRepository;
 
         public PaymentService()
         {
+            _orderRepository = new OrderRepository();
             _paymentRepository = new PaymentRepository();
         }
 
@@ -38,6 +40,7 @@ namespace ORM_MINI_PROJECT.Services.Implementations
                
                 PaymentDate = DateTime.UtcNow
             };
+            
 
             await _paymentRepository.CreateAsync(payment);
             await _paymentRepository.SaveChangesAsync();
@@ -71,6 +74,7 @@ namespace ORM_MINI_PROJECT.Services.Implementations
             var payment = await _paymentRepository.GetSingleAsync(p => p.Id == id);
             if (payment == null) throw new NotFoundException("Payment not found");
 
+
             return new PaymentDto
             {
                 Id = payment.Id,
@@ -79,6 +83,7 @@ namespace ORM_MINI_PROJECT.Services.Implementations
                
                 
             };
+
         }
     }
 }

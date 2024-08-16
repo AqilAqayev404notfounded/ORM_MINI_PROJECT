@@ -128,12 +128,12 @@ namespace ORM_MINI_PROJECT.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetail_OrderID",
                 table: "OrderDetail",
-                column: "OrderID");
+                column: "OrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetail_ProductID",
                 table: "OrderDetail",
-                column: "ProductID");
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payment_OrderId",

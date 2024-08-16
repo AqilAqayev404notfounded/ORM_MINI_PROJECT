@@ -51,6 +51,7 @@ public class OrderService : IOrderService
         if (isExist)
             throw new Exception("Order is already exist exception");
 
+
         var order = new Order
         {
             UserId = newOrder.UserId,
@@ -70,9 +71,9 @@ public class OrderService : IOrderService
         var order = await _orderRepository.GetSingleAsync(o => o.Id == updatedOrder.Id);
         if (order == null) throw new NotFoundException("Order not found");
 
-        order.TotalAmount = updatedOrder.TotalAmount;
         order.Status = updatedOrder.Status;
         order.OrderDate = DateTime.UtcNow;
+        await _orderRepository.SaveChangesAsync();
 
         _orderRepository.Update(order);
         await _orderRepository.SaveChangesAsync();
