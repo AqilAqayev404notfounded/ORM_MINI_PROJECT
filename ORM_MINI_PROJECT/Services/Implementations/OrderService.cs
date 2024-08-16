@@ -1,4 +1,5 @@
-﻿using ORM_MINI_PROJECT.DTOs;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using ORM_MINI_PROJECT.DTOs;
 using ORM_MINI_PROJECT.Excaption;
 using ORM_MINI_PROJECT.Models;
 using ORM_MINI_PROJECT.Repositories.Implementations;
@@ -16,22 +17,34 @@ public class OrderService : IOrderService
         _orderRepository = new OrderRepository();
     }
 
-    public async Task<List<OrderDto>> GetAllOrdersAsync()
+    public async Task<List<OrderDto>> GetAllOrdersAsync(int userId)
     {
-
-        var orders = await _orderRepository.GetAllAsync();
-        return orders.Select(o => new OrderDto
+        var order = await _orderRepository.GetAllAsync();
+        var orderdto = new List<OrderDto>();
+        foreach (var item in order)
         {
-            Id = o.Id,
-            UserId = o.UserId,
-            TotalAmount = o.TotalAmount,
-            Status = o.Status,
-        }).ToList();
+            if (item.Id == userId)
+            {
+
+                var orders = await _orderRepository.GetAllAsync();
+                 orders.Select(o => new OrderDto
+                {
+                    Id = o.Id,
+                    UserId = o.UserId,
+                    TotalAmount = o.TotalAmount,
+                    Status = o.Status,
+                }).ToList();
+                var orderDto = new OrderDto { Id = item.Id,UserId=item.Id, TotalAmount = item.TotalAmount, Status = item.Status };
+                orderdto.Add(orderDto);
+            }
+        }
+        return orderdto;
+
     }
 
-    public async Task<OrderDto> GetOrderByIdAsync(int id)
+    public async Task<OrderDto> GetOrderByIdAsync(int id, int userId)
     {
-        var order = await _orderRepository.GetSingleAsync(o => o.Id == id);
+        var order = await _orderRepository.GetSingleAsync(o => o.Id == id && o.UserId == userId);
         if (order == null) throw new NotFoundException("Order not found");
 
         return new OrderDto
@@ -43,10 +56,10 @@ public class OrderService : IOrderService
         };
     }
 
-    public async Task CreateOrderAsync(OrderDto newOrder)
+    public async Task CreateOrderAsync(OrderDto newOrder, int userId)
     {
 
-        var isExist=await _orderRepository.IsExistAsync(x=>x.UserId==newOrder.UserId && x.Status==Enums.OrderStatus.pending);
+        var isExist = await _orderRepository.IsExistAsync(x => x.UserId == newOrder.UserId && x.Status == Enums.OrderStatus.pending && x.UserId == userId);
 
         if (isExist)
             throw new Exception("Order is already exist exception");
@@ -66,9 +79,9 @@ public class OrderService : IOrderService
         await Console.Out.WriteLineAsync($"Order successfully created this your order id {order.Id}");
     }
 
-    public async Task UpdateOrderAsync(OrderDto updatedOrder)
+    public async Task UpdateOrderAsync(OrderDto updatedOrder, int userId)
     {
-        var order = await _orderRepository.GetSingleAsync(o => o.Id == updatedOrder.Id);
+        var order = await _orderRepository.GetSingleAsync(o => o.Id == updatedOrder.Id && o.UserId == userId);
         if (order == null) throw new NotFoundException("Order not found");
 
         order.Status = updatedOrder.Status;
@@ -79,12 +92,13 @@ public class OrderService : IOrderService
         await _orderRepository.SaveChangesAsync();
     }
 
-    public async Task DeleteOrderAsync(int id)
+    public async Task DeleteOrderAsync(int id, int userId)
     {
-        var order = await _orderRepository.GetSingleAsync(o => o.Id == id);
+        var order = await _orderRepository.GetSingleAsync(o => o.Id == id && o.UserId == userId);
         if (order == null) throw new NotFoundException("Order not found");
 
         _orderRepository.Delete(order);
         await _orderRepository.SaveChangesAsync();
     }
+
 }

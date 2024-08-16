@@ -14,7 +14,7 @@ namespace ORM_MINI_PROJECT.Configuration
         public void Configure(EntityTypeBuilder<OrderDetail> builder)
         {
             builder.Property(x => x.Quantity).IsRequired().HasMaxLength(100);
-            builder.Property(x=>x.PricePerItem).IsRequired().HasMaxLength(100).HasColumnType("decimal(7,2)");
+            builder.Property(x => x.PricePerItem).IsRequired().HasMaxLength(100).HasColumnType("decimal(7,2)");
 
             builder.HasCheckConstraint("CK_Quantity", "Quantity >= 0");
             builder.HasCheckConstraint("PricePerItem", "PricePerItem >= 0");

@@ -27,7 +27,7 @@ namespace ORM_MINI_PROJECT
             OrderService orderService = new OrderService();
             OrderDetailService orderDetailService = new OrderDetailService();
             PaymentService paymentService = new PaymentService();
-
+            User loggedUser = new User();
             while (true)
             {
 
@@ -35,6 +35,7 @@ namespace ORM_MINI_PROJECT
                 Console.WriteLine("Welcome MyMarket");
                 Console.WriteLine("Register");
                 Console.WriteLine("Login");
+                Console.WriteLine("Excel export");
                 Console.WriteLine("Exit");
                 string select = Console.ReadLine();
                 switch (select)
@@ -133,6 +134,7 @@ namespace ORM_MINI_PROJECT
                             }
 
                             userService.Login(userPostDto);
+                            loggedUser.Id = userService.Login(userPostDto).Id;
                             Console.Clear();
 
                             var users = await appContext.Users.ToListAsync();
@@ -519,7 +521,7 @@ namespace ORM_MINI_PROJECT
                                                     Status = Enums.OrderStatus.pending,
                                                 };
 
-                                                await orderService.CreateOrderAsync(newOrder);
+                                                await orderService.CreateOrderAsync(newOrder, loggedUser.Id);
                                                 await Console.Out.WriteLineAsync("Order successfully created.");
                                             }
                                             else
@@ -537,17 +539,37 @@ namespace ORM_MINI_PROJECT
                                     case "2":
                                         try
                                         {
+                                            var usersorderAll = await orderService.GetAllOrdersAsync(loggedUser.Id);
+                                            if (usersorderAll.Any())
+                                            {
+                                                foreach (var item in usersorderAll)
+                                                {
+                                                    await Console.Out.WriteLineAsync($"ID: {item.Id}, UserId {item.UserId} TotalAmount {item.TotalAmount}  Status {item.Status.ToString()}");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                await Console.Out.WriteLineAsync("No users found.");
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            await Console.Out.WriteLineAsync(ex.Message);
+                                        }
+
+                                        try
+                                        {
                                             await Console.Out.WriteLineAsync("Enter order ID:");
                                             string orderIdInput = Console.ReadLine();
 
                                             if (int.TryParse(orderIdInput, out int orderId) || orderId <= 0)
                                             {
-                                                var orderToCancel = await orderService.GetOrderByIdAsync(orderId);
+                                                var orderToCancel = await orderService.GetOrderByIdAsync(orderId,loggedUser.Id);
 
                                                 if (orderToCancel != null)
                                                 {
                                                     orderToCancel.Status = Enums.OrderStatus.Cancelled;
-                                                    await orderService.UpdateOrderAsync(orderToCancel);
+                                                    await orderService.UpdateOrderAsync(orderToCancel,loggedUser.Id);
                                                     await Console.Out.WriteLineAsync("Order successfully cancelled.");
                                                 }
                                                 else
@@ -569,10 +591,10 @@ namespace ORM_MINI_PROJECT
 
                                     
                                        
-                                    case "4":
+                                    case "3":
                                         try
                                         {
-                                            var usersorderAll = await orderService.GetAllOrdersAsync();
+                                            var usersorderAll = await orderService.GetAllOrdersAsync(loggedUser.Id);
                                             if (usersorderAll.Any())
                                             {
                                                 foreach (var item in usersorderAll)
@@ -592,7 +614,7 @@ namespace ORM_MINI_PROJECT
 
                                         goto OrderMenu;
 
-                                    case "5":
+                                    case "4":
                                         try
                                         {
                                             await Console.Out.WriteLineAsync("Enter order ID:");
@@ -600,7 +622,7 @@ namespace ORM_MINI_PROJECT
 
                                             if (int.TryParse(addDetailOrderIdInput, out int addDetailOrderId) || addDetailOrderId <= 0)
                                             {
-                                                var orders = await orderService.GetOrderByIdAsync(addDetailOrderId);
+                                                var orders = await orderService.GetOrderByIdAsync(addDetailOrderId,loggedUser.Id);
 
                                                 if (orders != null)
                                                 {
@@ -692,7 +714,7 @@ namespace ORM_MINI_PROJECT
                                                 goto paymentMenu;
                                             }
 
-                                            var orderpeyment = await orderService.GetOrderByIdAsync(orderId);
+                                            var orderpeyment = await orderService.GetOrderByIdAsync(orderId, loggedUser.Id);
                                             if (orderpeyment == null)
                                             {
                                                 await Console.Out.WriteLineAsync("Order not found.");
@@ -718,7 +740,7 @@ namespace ORM_MINI_PROJECT
                                             await Console.Out.WriteLineAsync("Payment successfully created.");
 
                                             orderpeyment.Status = Enums.OrderStatus.Completed;
-                                            await orderService.UpdateOrderAsync(orderpeyment);
+                                            await orderService.UpdateOrderAsync(orderpeyment, loggedUser.Id);
                                             await Console.Out.WriteLineAsync("Order status updated to Completed.");
                                         }
                                         catch (Exception ex)
